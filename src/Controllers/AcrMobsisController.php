@@ -2,10 +2,10 @@
 
 namespace Acr\Mobsis\Controllers;
 
+use Acr\Mobsis\Model\Config;
 use Auth;
 use Illuminate\Http\Request;
 use Ixudra\Curl\CurlService;
-use Illuminate\Support\Facades\Session;
 
 class AcrMobsisController extends Controller
 {
@@ -62,6 +62,30 @@ class AcrMobsisController extends Controller
     }
 
     #lisanslama ve market
+
+    //config
+    function config()
+    {
+        $config_model = new Config();
+        $config       = $config_model->first();
+        $msg          = session('msg');
+        return View('acr_mobsis::config', compact('config', 'msg'));
+
+    }
+
+    function config_set(Request $request)
+    {
+        $config_model = new Config();
+        $data         = [
+            'username' => $request->username,
+            'pass'     => $request->pass
+
+        ];
+        $config_model->where('id', 1)->update($data);
+        return redirect()->back()->with('msg', $this->basarili());
+
+    }
+
 // öğrenciler
     function ogretmen_ogrenci_islem(Request $request)
     {
@@ -79,9 +103,10 @@ class AcrMobsisController extends Controller
         $data_bekleyen = ['status' => 0, 'start' => 0, 'record' => 50];
         $data_veliler  = ['sinif_id' => $ders_id, 'start' => 0, 'record' => 50];
         $bekleyen      = self::curl('http://api.mobilogrencitakip.com/api/v1/ogretmen-ogrenci-bekleyen-list', $data_bekleyen, 'post', self::get_token());
-        $ogrenciler       = self::curl('http://api.mobilogrencitakip.com/api/v1/ogretmen-sinif-ogrenci-list', $data_veliler, 'post', self::get_token());
+        $ogrenciler    = self::curl('http://api.mobilogrencitakip.com/api/v1/ogretmen-sinif-ogrenci-list', $data_veliler, 'post', self::get_token());
         return View('acr_mobsis::ogretmen.ogrenciler', compact('ders_list', 'ders_id', 'ogrenciler', 'bekleyen'));
     }
+
     //veliler
     function ogretmen_veli_islem(Request $request)
     {
@@ -244,9 +269,13 @@ class AcrMobsisController extends Controller
         if ($mobsis_token) {
             return $mobsis_token;
         }
-        $data      = ['username' => auth()->user()->email, 'password' => auth()->user()->pass];
-        $url       = 'http://api.mobilogrencitakip.com/api/v1/login';
-        $get_token = self::curl($url, $data, 'post', $mobsis_token);
+        $config_model = new Config();
+        $config       = $config_model->first();
+        $username     = $config->username;
+        $pass         = $config->pass;
+        $data         = ['username' => Auth::user()->$username, 'password' => Auth::user()->$pass];
+        $url          = 'http://api.mobilogrencitakip.com/api/v1/login';
+        $get_token    = self::curl($url, $data, 'post', $mobsis_token);
         if (empty($get_token->data->token)) {
             session()->forget('mobsis_token');
         }

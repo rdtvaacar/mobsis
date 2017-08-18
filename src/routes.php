@@ -6,6 +6,9 @@ Route::group(['middleware' => ['web']], function () {
             Route::post('/order/active', 'AcrSepetController@orders_active');
             Route::group(['middleware' => ['admin']], function () {
                 Route::post('/order/deactive', 'AcrSepetController@orders_deactive');
+                Route::get('/config', 'AcrMobsisController@config');
+                Route::post('/config', 'AcrMobsisController@config_set');
+
             });
             Route::group(['middleware' => ['mobsis']], function () {
                 Route::get('/get_token', 'AcrMobsisController@get_token');
@@ -39,8 +42,6 @@ Route::group(['middleware' => ['web']], function () {
                 Route::get('ogretmen/ogrenci/list', 'AcrMobsisController@ogretmen_ogrenci_bekleyen_list');
                 Route::post('ogretmen/ogrenci/list', 'AcrMobsisController@ogretmen_ogrenci_bekleyen_list');
                 Route::post('ogretmen/ogrenci/islem', 'AcrMobsisController@ogretmen_ogrenci_islem');
-
-
             });
         });
     });
