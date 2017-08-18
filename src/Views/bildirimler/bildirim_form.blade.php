@@ -19,7 +19,7 @@
                     <div class="box-header with-border">Gönderilen Bildirimler</div>
                     <div class="box-body">
                         @if(!empty($ders_id))
-                            <table class="table">
+                            <table class="table table-striped">
                                 @foreach($veri->data->ogretmen_bildirimler as $bildirim)
                                     <tr>
                                         <td>
