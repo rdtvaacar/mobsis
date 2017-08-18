@@ -1,0 +1,21 @@
+{
+  "name": "acr/mobsis",
+  "description": "MOBSİS",
+  "type": "project",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "acr",
+      "email": "acarbey15@gmail.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "Acr\\Mobsis\\": "src/"
+    }
+  },
+  "require": {
+    "ixudra/curl": "6.*"
+  }
+}
