@@ -14,36 +14,6 @@
                     </div>
                 </div>
             </div>
-            <div class=" col-md-5">
-                <div class="box box-primary">
-                    <div class="box-header with-border">Gönderilen Bildirimler</div>
-                    <div class="box-body">
-                        @if(!empty($ders_id))
-                            <table class="table table-striped">
-                                @foreach($veri->data->ogretmen_bildirimler as $bildirim)
-                                    <tr>
-                                        <td>
-                                            <h4 style="float: left;" class="text-aqua">{{$bildirim->header}}</h4>
-                                            <div style="text-align: right; font-size: small" class="text-muted">{{$bildirim->created_at}}</div>
-                                            <div style="clear:both;"></div>
-                                            <div style="text-indent: 20px;">{{$bildirim->content}}</div>
-                                            <div style="clear:both;"></div>
-                                            <span class="text-muted" style=" font-size: 9pt;">
-                                            @foreach($bildirim->events_user_type as $key=>$user_type)
-                                                    {{$user_type->ad}}
-                                                    @if(count($bildirim->events_user_type)>$key+1)
-                                                        ,
-                                                    @endif
-                                                @endforeach
-                                            </span>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </table>
-                        @endif
-                    </div>
-                </div>
-            </div>
             <div class=" col-md-4">
                 <div class="box box-primary">
                     <div class="box-header with-border">Bildirim Gönderme Formu</div>
@@ -112,6 +82,37 @@
                     </div>
                 </div>
             </div>
+            <div class=" col-md-5">
+                <div class="box box-primary">
+                    <div class="box-header with-border">Gönderilen Bildirimler</div>
+                    <div class="box-body">
+                        @if(!empty($ders_id))
+                            <table class="table table-striped">
+                                @foreach($veri->data->ogretmen_bildirimler as $bildirim)
+                                    <tr>
+                                        <td>
+                                            <h4 style="float: left;" class="text-aqua">{{$bildirim->header}}</h4>
+                                            <div style="text-align: right; font-size: small" class="text-muted">{{$bildirim->created_at}}</div>
+                                            <div style="clear:both;"></div>
+                                            <div style="text-indent: 20px;">{{$bildirim->content}}</div>
+                                            <div style="clear:both;"></div>
+                                            <span class="text-muted" style=" font-size: 9pt;">
+                                            @foreach($bildirim->events_user_type as $key=>$user_type)
+                                                    {{$user_type->ad}}
+                                                    @if(count($bildirim->events_user_type)>$key+1)
+                                                        ,
+                                                    @endif
+                                                @endforeach
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 @stop

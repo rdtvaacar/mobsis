@@ -98,6 +98,7 @@ class AcrMobsisController extends Controller
 
     function ogretmen_ogrenci_bekleyen_list(Request $request)
     {
+        self::user_control();
         $ders_id       = $request->ders_id;
         $ders_list     = self::ders_list($ders_id);
         $data_bekleyen = ['status' => 0, 'start' => 0, 'record' => 50];
@@ -119,6 +120,7 @@ class AcrMobsisController extends Controller
 
     function ogretmen_veli_list(Request $request)
     {
+        self::user_control();
         $ders_id       = $request->ders_id;
         $ders_list     = self::ders_list($ders_id);
         $data_bekleyen = ['status' => 0, 'start' => 0, 'record' => 50];
@@ -138,6 +140,7 @@ class AcrMobsisController extends Controller
 
     function ogretmen_cocuk_verme_liste(Request $request)
     {
+        self::user_control();
         $status     = empty($request->status) ? 0 : $request->status;
         $data       = ['status' => $status, 'start' => 0, 'record' => 120];
         $veri       = self::curl('http://api.mobilogrencitakip.com/api/v1/ogretmen-cocuk-verme-liste', $data, 'post', self::get_token());
@@ -153,6 +156,7 @@ class AcrMobsisController extends Controller
     // Bildirimler
     function bildirim_form(Request $request)
     {
+        self::user_control();
         $ders_id   = $request->ders_id;
         $ders_list = self::ders_list($ders_id);
         $data      = ['sinif_id' => $ders_id, 'start' => 0, 'record' => 30];
@@ -162,6 +166,7 @@ class AcrMobsisController extends Controller
 
     function ders_list($ders_id)
     {
+
         $data = ['status' => 1];
         $veri = self::curl('http://api.mobilogrencitakip.com/api/v1/ogretmen-ders-list', $data, 'post', self::get_token());
         return View('acr_mobsis::ogretmen.ders_list', compact('veri', 'ders_id'))->render();
@@ -198,7 +203,7 @@ class AcrMobsisController extends Controller
 
     function ogretmen_ders_list(Request $request)
     {
-        self::user_control($request);
+        self::user_control();
         $status = $request->status;
         $status = empty($status) ? -1 : $status;
         $data   = ['status' => $status];
@@ -208,6 +213,7 @@ class AcrMobsisController extends Controller
 
     function ogretmen_ders_form(Request $request)
     {
+        self::user_control();
         $ders_id = $request->ders_id;
         $data    = ['ders_id' => $ders_id];
         $veri    = self::curl('http://api.mobilogrencitakip.com/api/v1/ogretmen-ders-data', $data, 'post', self::get_token());
@@ -224,15 +230,15 @@ class AcrMobsisController extends Controller
 
     function ogretmen_sinif_list(Request $request)
     {
-        self::user_control($request);
+        self::user_control();
         $mobsis_token = self::get_token($request);
         $veri         = self::curl('http://api.mobilogrencitakip.com/api/v1/ogretmen-sinif-list', null, 'post', $mobsis_token);
         return View('acr_mobsis::ogretmen.sinif_list', compact('veri'));
     }
 
-    function index(Request $request)
+    function index()
     {
-        self::user_control($request);
+        self::user_control();
         return View('acr_mobsis::anasayfa');
     }
 
@@ -295,37 +301,41 @@ class AcrMobsisController extends Controller
 
     function get_token_admin()
     {
-        if (empty($this->admin_token)) {
+        $mobsis_token = session('mobsis_token');
+
+        $admin_token = session('admin_token');
+        if (empty($admin_token)) {
             $data      = ['username' => 'info@okuloncesievrak.com', 'password' => 'acar5210_15'];
             $url       = 'http://api.mobilogrencitakip.com/api/v1/login';
-            $get_token = self::curl($url, $data, 'post', $this->admin_token);
+            $get_token = self::curl($url, $data, 'post', $admin_token);
             if (empty($get_token->data->token)) {
                 return 0;
             }
             $admin_token = $get_token->data->token;
-            session('admin_token', $this->admin_token);
+            session('admin_token', $admin_token);
         }
         return $admin_token;
 
     }
-
     function user_control()
     {
-        $data       = ['email' => Auth::user()->email];
-        $user_count = self::curl('http://api.mobilogrencitakip.com/api/v1/register_control', $data, 'post', self::get_token());
-        if ($user_count->data == 0) {
-            $data_user = [
-                'username'     => Auth::user()->email,
-                'name'         => Auth::user()->name,
-                'password'     => Auth::user()->password,
-                'TC'           => Auth::user()->tc,
-                'tel'          => Auth::user()->tel,
-                'user_type_id' => 2
-            ];
-            $response  = self::curl('http://api.mobilogrencitakip.com/api/v1/register_api', $data_user, 'post', $this->get_token_admin());
-            return response()->json(['status' => 0, 'title' => 'Bilgi', 'msg' => $response]);
-        } else {
-            return response()->json(['status' => 1, 'title' => 'Bilgi', 'msg' => 'Kullanıcı var']);
+        if (!empty($mobsis_token)) {
+            $data       = ['email' => Auth::user()->email];
+            $user_count = self::curl('http://api.mobilogrencitakip.com/api/v1/register_control', $data, 'post', self::get_token());
+            if ($user_count->data == 0) {
+                $data_user = [
+                    'username'     => Auth::user()->email,
+                    'name'         => Auth::user()->name,
+                    'password'     => Auth::user()->password,
+                    'TC'           => Auth::user()->tc,
+                    'tel'          => Auth::user()->tel,
+                    'user_type_id' => 2
+                ];
+                $response  = self::curl('http://api.mobilogrencitakip.com/api/v1/register_api', $data_user, 'post', $this->get_token_admin());
+                return response()->json(['status' => 0, 'title' => 'Bilgi', 'msg' => $response]);
+            } else {
+                return response()->json(['status' => 1, 'title' => 'Bilgi', 'msg' => 'Kullanıcı var']);
+            }
         }
     }
 
