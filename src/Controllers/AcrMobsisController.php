@@ -319,7 +319,8 @@ class AcrMobsisController extends Controller
     }
     function user_control()
     {
-        if (!empty($mobsis_token)) {
+        $mobsis_token = session('mobsis_token');
+        if (empty($mobsis_token)) {
             $data       = ['email' => Auth::user()->email];
             $user_count = self::curl('http://api.mobilogrencitakip.com/api/v1/register_control', $data, 'post', self::get_token());
             if ($user_count->data == 0) {
