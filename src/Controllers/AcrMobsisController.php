@@ -317,12 +317,15 @@ class AcrMobsisController extends Controller
         return $admin_token;
 
     }
+
     function user_control()
     {
         $mobsis_token = session('mobsis_token');
-        if (empty($mobsis_token)) {
-            $data       = ['email' => Auth::user()->email];
-            $user_count = self::curl('http://api.mobilogrencitakip.com/api/v1/register_control', $data, 'post', self::get_token());
+        if ($mobsis_token) {
+            return response()->json(['status' => 1, 'title' => 'Bilgi', 'msg' => 'Kullanıcı var']);
+        } else {
+            $data       = ['username' => Auth::user()->email];
+            $user_count = self::curl('http://api.mobilogrencitakip.com/api/v1/register_control', $data, 'post', self::get_token_admin());
             if ($user_count->data == 0) {
                 $data_user = [
                     'username'     => Auth::user()->email,
@@ -334,8 +337,6 @@ class AcrMobsisController extends Controller
                 ];
                 $response  = self::curl('http://api.mobilogrencitakip.com/api/v1/register_api', $data_user, 'post', $this->get_token_admin());
                 return response()->json(['status' => 0, 'title' => 'Bilgi', 'msg' => $response]);
-            } else {
-                return response()->json(['status' => 1, 'title' => 'Bilgi', 'msg' => 'Kullanıcı var']);
             }
         }
     }
